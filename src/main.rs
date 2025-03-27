@@ -1,6 +1,24 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
+fn cmd_exit(args: &[&str]) {
+  let code: i32 = args.get(0).unwrap_or(&"0").parse().expect("Invalid exit code");
+  std::process::exit(code);
+}
+
+fn cmd_echo(args: &[&str]) {
+  println!("{}", args.join(" "));
+}
+
+fn cmd_type(args: &[&str]) {
+  let cmds = vec!["exit", "echo", "type"];
+  let cmd = args.get(0).expect("No command provided");
+  match cmds.contains(&cmd) {
+    true => println!("{} is a shell builtin", cmd),
+    false => println!("{}: not found", cmd),
+  }
+}
+
 fn main() {
   loop {
     print!("$ ");
@@ -15,15 +33,9 @@ fn main() {
     let cmd = args[0];
     let cmd_args = &args[1..];
     match cmd {
-      "exit" => {
-        let code: i32 = cmd_args.get(0).unwrap_or(&"0").parse().expect("Invalid exit code");
-        std::process::exit(code);
-      }
-
-      "echo" => {
-        println!("{}", cmd_args.join(" "));
-      }
-
+      "exit" => cmd_exit(cmd_args),
+      "echo" => cmd_echo(cmd_args),
+      "type" => cmd_type(cmd_args),
       _ => println!("{}: command not found", input.trim()),
     }
   }

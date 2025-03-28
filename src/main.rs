@@ -31,6 +31,7 @@ fn main() {
       "exit" => commands::cmd_exit::execute(cmd_args),
       "echo" => commands::cmd_echo::execute(cmd_args),
       "type" => commands::cmd_type::execute(cmd_args),
+      "pwd" => commands::cmd_pwd::execute(cmd_args),
       _ => match utils::find_command_in_path(cmd) {
         Some(entry) => execute_command(entry.file_name().into_string().unwrap(), cmd_args),
         None => println!("{}: command not found", input.trim()),

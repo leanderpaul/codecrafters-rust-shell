@@ -4,4 +4,3 @@ reorder_imports = true
 imports_granularity = "Module"
 group_imports = "StdExternalCrate"
 imports_layout = "Horizontal"
-merge_imports = "Unix"

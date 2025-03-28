@@ -1,42 +1,17 @@
 use std::io::{self, Write};
-use std::path::Path;
 
-fn cmd_exit(args: &[&str]) {
-  let code: i32 = args.get(0).unwrap_or(&"0").parse().expect("Invalid exit code");
-  std::process::exit(code);
-}
+mod commands;
+mod utils;
 
-fn cmd_echo(args: &[&str]) {
-  println!("{}", args.join(" "));
-}
-
-fn cmd_type(args: &[&str]) {
-  let cmds = vec!["exit", "echo", "type"];
-  let cmd = args.get(0).expect("No command provided");
-
-  if cmds.contains(&cmd) {
-    println!("{} is a shell builtin", cmd);
-    return;
+fn execute_command(command: String, args: &[&str]) {
+  let mut command = std::process::Command::new(command);
+  command.args(args);
+  let output = command.output().expect("Failed to execute command");
+  if output.status.success() {
+    print!("{}", String::from_utf8_lossy(&output.stdout));
+  } else {
+    eprint!("{}", String::from_utf8_lossy(&output.stderr));
   }
-
-  let path = std::env::var("PATH").unwrap_or_default();
-  let paths: Vec<&str> = path.split(':').collect();
-  for p in paths {
-    let path = Path::new(p);
-    if !path.is_dir() {
-      continue;
-    }
-
-    for file in path.read_dir().unwrap() {
-      let file = file.unwrap();
-      if file.file_name().eq(cmd) {
-        println!("{} is {}", cmd, file.path().display());
-        return;
-      }
-    }
-  }
-
-  println!("{}: not found", cmd);
 }
 
 fn main() {
@@ -53,10 +28,13 @@ fn main() {
     let cmd = args[0];
     let cmd_args = &args[1..];
     match cmd {
-      "exit" => cmd_exit(cmd_args),
-      "echo" => cmd_echo(cmd_args),
-      "type" => cmd_type(cmd_args),
-      _ => println!("{}: command not found", input.trim()),
+      "exit" => commands::cmd_exit::execute(cmd_args),
+      "echo" => commands::cmd_echo::execute(cmd_args),
+      "type" => commands::cmd_type::execute(cmd_args),
+      _ => match utils::find_command_in_path(cmd) {
+        Some(entry) => execute_command(entry.file_name().into_string().unwrap(), cmd_args),
+        None => println!("{}: command not found", input.trim()),
+      },
     }
   }
 }

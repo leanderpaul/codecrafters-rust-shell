@@ -1,3 +1,4 @@
+pub mod cmd_cd;
 pub mod cmd_echo;
 pub mod cmd_exit;
 pub mod cmd_pwd;

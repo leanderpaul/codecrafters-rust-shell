@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 mod commands;
+mod state;
 mod utils;
 
 fn execute_command(command: String, args: &[&str]) {
@@ -32,6 +33,7 @@ fn main() {
       "echo" => commands::cmd_echo::execute(cmd_args),
       "type" => commands::cmd_type::execute(cmd_args),
       "pwd" => commands::cmd_pwd::execute(cmd_args),
+      "cd" => commands::cmd_cd::execute(cmd_args),
       _ => match utils::find_command_in_path(cmd) {
         Some(entry) => execute_command(entry.file_name().into_string().unwrap(), cmd_args),
         None => println!("{}: command not found", input.trim()),

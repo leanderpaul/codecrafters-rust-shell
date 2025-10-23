@@ -12,6 +12,10 @@ pub fn find_command_in_path(cmd: &str) -> Option<DirEntry> {
 
     for entry in path.read_dir().unwrap() {
       let entry = entry.unwrap();
+      if !entry.path().exists() {
+        continue;
+      }
+
       let is_file = entry.path().is_file();
       let is_executable = entry.path().metadata().unwrap().permissions().mode() & 0o111 != 0;
       if entry.file_name() == cmd && is_file && is_executable {

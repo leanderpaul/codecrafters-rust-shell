@@ -15,6 +15,31 @@ fn execute_command(command: String, args: &[&str]) {
   }
 }
 
+fn collect_args(input: &str) -> Vec<String> {
+  let mut parts = Vec::new();
+  let mut current = String::new();
+  let mut in_quotes = false;
+
+  for c in input.chars() {
+    match c {
+      '\'' => in_quotes = !in_quotes,
+      ' ' if !in_quotes => {
+        if !current.is_empty() {
+          parts.push(current.clone());
+          current.clear();
+        }
+      }
+      _ => current.push(c),
+    }
+  }
+
+  if !current.is_empty() {
+    parts.push(current);
+  }
+
+  return parts;
+}
+
 fn main() {
   loop {
     print!("$ ");
@@ -25,7 +50,8 @@ fn main() {
     let mut input = String::new();
     stdin.read_line(&mut input).unwrap();
 
-    let args: Vec<&str> = input.trim().split(' ').collect();
+    let input_args = collect_args(&input.trim());
+    let args: Vec<&str> = input_args.iter().map(|s| s.as_str()).collect();
     let cmd = args[0];
     let cmd_args = &args[1..];
     match cmd {

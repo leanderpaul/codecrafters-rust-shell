@@ -18,12 +18,16 @@ fn execute_command(command: String, args: &[&str]) {
 fn collect_args(input: &str) -> Vec<String> {
   let mut parts = Vec::new();
   let mut current = String::new();
-  let mut in_quotes = false;
+  let mut quote_char = None;
 
   for c in input.chars() {
     match c {
-      '\'' => in_quotes = !in_quotes,
-      ' ' if !in_quotes => {
+      '\'' | '"' => match quote_char {
+        None => quote_char = Some(c),
+        Some(q) if q == c => quote_char = None,
+        Some(_) => current.push(c),
+      },
+      ' ' if quote_char.is_none() => {
         if !current.is_empty() {
           parts.push(current.clone());
           current.clear();

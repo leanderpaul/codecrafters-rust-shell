@@ -20,16 +20,30 @@ fn collect_args(input: &str) -> Vec<String> {
   let mut current = String::new();
   let mut quote_char = None;
   let mut is_escaped = false;
+  let escaped_chars_in_double_quotes = ['\\', '"'];
 
   for c in input.chars() {
     if is_escaped {
-      current.push(c);
-      is_escaped = false;
-      continue;
+      match quote_char {
+        None => {
+          current.push(c);
+          is_escaped = false;
+          continue;
+        }
+        Some('"') if escaped_chars_in_double_quotes.contains(&c) => {
+          current.push(c);
+          is_escaped = false;
+          continue;
+        }
+        Some(_) => {
+          current.push('\\');
+          is_escaped = false;
+        }
+      }
     }
 
     match c {
-      '\\' if quote_char.is_none() => is_escaped = true,
+      '\\' => is_escaped = true,
       '\'' | '"' => match quote_char {
         None => quote_char = Some(c),
         Some(q) if q == c => quote_char = None,
